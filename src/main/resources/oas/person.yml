@@ -1,0 +1,162 @@
+openapi: '3.0.2'
+info:
+  title: Person
+  version: '1.0'
+servers:
+  - url: https://api.server.test/v1
+  - url: https://api.server.demo/v1
+  - url: https://api.server/v1
+paths:
+  /person:
+    description: Person Get
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Person'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Person'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /person/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+    put:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Person'
+          
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Person'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      responses:
+        '200':
+          description: OK
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Person:
+      type: object
+      description: Person
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "john Doe"
+        age:
+          type: integer
+          example: 30
+        contacts:
+          type: array
+          items:
+            anyOf:
+              - $ref: '#/components/schemas/Address'
+              - $ref: '#/components/schemas/Phone'
+      required:
+        - id
+        - name
+        - contacts
+    Phone:
+      type: object
+      properties:
+        type:
+          type: string
+          example: PHONE
+        number:
+          type: string
+          example: +91 1234567890
+    Address:
+      type: object
+      properties:
+        type:
+          type: string
+          example: ADDRESS
+        address1:
+          type: string
+          example: Khau Gali 15
+        address2:
+          type: string
+          example: Delhi
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 400
+        httpMethod:
+          type: string
+          enum:
+            - 'GET'
+            - 'POST'
+            - 'PUT'
+            - 'DELETE'
+        message:
+          type: string
+          example: Bad Request
+        path:
+          type: string
+          example: /person
+        
+        
+    
+        
+        
+          
