@@ -1,10 +1,10 @@
-package com.example.webfluxpersonapi;
+package com.example.webfluxapisample;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class WebfluxPersonApiApplicationTests {
+class WebfluxApiSampleApplicationTests {
 
 	@Test
 	void contextLoads() {

@@ -1,4 +1,4 @@
-package com.example.webfluxpersonapi;
+package com.example.webfluxapisample;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
@@ -19,10 +19,10 @@ import java.util.List;
 
 @SpringBootApplication
 @Slf4j
-public class WebfluxPersonApiApplication {
+public class WebfluxApiSampleApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(WebfluxPersonApiApplication.class, args);
+		SpringApplication.run(WebfluxApiSampleApplication.class, args);
 	}
 	@Bean
 	RouterFunction routerFunction() {
@@ -55,7 +55,13 @@ public class WebfluxPersonApiApplication {
 				.getContacts()
 				.stream()
 				.forEach(p -> {
-					log.info("contacts {}", p);
+					if(p instanceof Address) {
+						log.info("Address {}", p);
+					}
+					if(p instanceof Phone) {
+						log.info("Phone {}", p);
+					}
+					log.info("Contacts {}", p);
 				});
 
 		return Mono.fromCallable(() -> person)	;
