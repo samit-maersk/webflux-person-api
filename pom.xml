@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>webflux-person-api</artifactId>
+	<artifactId>webflux-api-sample</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>webflux-person-api</name>
-	<description>Webflux Person api</description>
+	<name>webflux-api-sample</name>
+	<description>webflux-api-sample</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>
