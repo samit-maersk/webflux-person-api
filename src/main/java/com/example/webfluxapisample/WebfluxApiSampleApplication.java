@@ -1,8 +1,9 @@
 package com.example.webfluxapisample;
 
-import com.example.webfluxapisample.models.Address;
+import com.example.webfluxapisample.models.Contact;
 import com.example.webfluxapisample.models.Person;
-import com.example.webfluxapisample.models.Phone;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,6 +13,8 @@ import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @SpringBootApplication
 @Slf4j
@@ -47,6 +50,15 @@ public class WebfluxApiSampleApplication {
 
 	private Mono<Person> dbPersist(Person person) {
 
+		//To Convert LinkedHashMap to POJO
+//		POJO pojo = mapper.convertValue(singleObject, POJO.class);
+//		// or:
+//		List<POJO> pojos = mapper.convertValue(listOfObjects, new TypeReference<List<POJO>>() { });
+
+
+		var phoneAndAddress = new ObjectMapper().convertValue(person.getContacts(), new TypeReference<List<Contact>>() {});
+		phoneAndAddress.stream().forEach(System.out::println);
+
 		person
 				.getContacts()
 				.stream()
@@ -55,8 +67,4 @@ public class WebfluxApiSampleApplication {
 		return Mono.fromCallable(() -> person)	;
 	}
 }
-
-//record Phone(Integer number,ContactType type) {}
-//record Address (String address1, String address2, ContactType type) {}
-//record Contact<T>(T data) {}
 

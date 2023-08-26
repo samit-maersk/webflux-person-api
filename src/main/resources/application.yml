@@ -2,3 +2,9 @@ logging:
   level:
     web: trace
     com.fasterxml.jackson: trace
+
+
+spring:
+  application:
+    name: @project.name@
+

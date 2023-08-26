@@ -1,15 +1,12 @@
 package com.example.webfluxapisample.models;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-@Setter
-@Getter
+import lombok.Data;
+@Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class Address extends Contact {
+    public Address() {}
+    ContactType contactType;
     String address1;
     String address2;
 }
