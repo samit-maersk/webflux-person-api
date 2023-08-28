@@ -3,6 +3,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+// A good tutorial to get referenced from https://www.logicbig.com/tutorials/misc/jackson/json-type-info-with-logical-type-name.html
+
 //@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "contactType")
 //@JsonSubTypes({
 //        @JsonSubTypes.Type(value = Address.class, name = "ADDRESS"),
