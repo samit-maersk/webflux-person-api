@@ -6,6 +6,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class Phone extends Contact {
     public Phone() {}
-    ContactType contactType;
+    //ContactType contactType;
     String number;
 }

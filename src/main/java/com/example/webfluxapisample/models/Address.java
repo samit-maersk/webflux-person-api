@@ -6,7 +6,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class Address extends Contact {
     public Address() {}
-    ContactType contactType;
+    //ContactType contactType;
     String address1;
     String address2;
 }
