@@ -83,4 +83,44 @@ class WebfluxApiSampleApplicationTests {
 					}
 				""");
 	}
+	@DisplayName("/array post Test")
+	@Test
+	void arrayTest() {
+		webTestClient
+				.post()
+				.uri("/array")
+				.contentType(MediaType.APPLICATION_JSON)
+				.bodyValue("""
+					[
+						{
+							"id": 1,
+							"name": "john Doe",
+							"age": 30 
+    					},
+    					{
+							"id": 2,
+							"name": "john X",
+							"age": 32 
+    					}
+					]
+				""")
+				.exchange()
+				.expectStatus()
+				.isOk()
+				.expectBody()
+				.json("""
+    				[
+						{
+							"id": 1,
+							"name": "john Doe",
+							"age": 30 
+    					},
+    					{
+							"id": 2,
+							"name": "john X",
+							"age": 32 
+    					}
+					]
+				""");
+	}
 }
