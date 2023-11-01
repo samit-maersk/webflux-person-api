@@ -24,9 +24,11 @@ import reactor.core.scheduler.Schedulers;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -116,44 +118,53 @@ public class WebfluxApiSampleApplication {
 		return request
 				.multipartData()
 				.flatMap(part -> {
-					var stringPartMap= part.toSingleValueMap();
+					var stringPartMap = part.toSingleValueMap();
 					var filePart = (FilePart) stringPartMap.get("files");
 
-					if(Objects.isNull(filePart)) {
-						return Mono.error(new RuntimeException("Invalid File"));
+					if (Objects.isNull(filePart)) {
+						return Mono.error(new BadRequestException("Invalid File"));
 					}
 
 					var fileName = filePart.filename();
-					var fileExtn = fileName.substring(fileName.indexOf(".")+1);
+					var fileExtn = fileName.substring(fileName.indexOf(".") + 1);
 
 					Stream.of("png", "jpg", "jpeg")
 							.filter(s -> s.equalsIgnoreCase(fileExtn))
 							.findFirst()
-							.orElseThrow(() -> new RuntimeException("Invalid File Type"));
+							.orElseThrow(() -> new BadRequestException("Invalid File Type"));
 
-					//create thumnail
+					Path originalFilePath = Path.of("/tmp/upload/" + fileName);
+					Path thumbnailFilePath = Path.of("/tmp/upload/thumbnail_" + fileName);
 
-					/*try {
-						var image = ImageIO.read(filePart.content());
-						var thumbnail = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
-						var graphics = thumbnail.createGraphics();
-						graphics.drawImage(image, 0, 0, 100, 100, null);
-						ByteArrayOutputStream baos = new ByteArrayOutputStream();
-						ImageIO.write(thumbnail, "jpg", baos);
-						baos.flush();
-						var imageInByte = baos.toByteArray();
-						baos.close();
-						Files.write(Path.of("/tmp/upload/thumbnail_" + fileName), imageInByte);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}*/
-
-					return filePart.transferTo(Path.of("/tmp/upload/" + fileName));
-
+					return filePart
+							.transferTo(originalFilePath)
+							.then(Mono.fromCallable(() -> filePart))
+							.flatMap(filePart1 ->
+									createThumbnail(originalFilePath, thumbnailFilePath)
+											.thenReturn(filePart1)
+							);
 
 				})
 				.then(ServerResponse.ok().bodyValue("File Uploaded Successfully"));
 	}
+
+	private Mono<Void> createThumbnail(Path originalFilePath, Path thumbnailFilePath) {
+		return Mono.fromCallable(() -> {
+					// Load the original image and create a thumbnail
+					BufferedImage originalImage = ImageIO.read(originalFilePath.toFile());
+					int thumbnailWidth = 150; // Adjust the width as needed
+					int thumbnailHeight = (int) ((double) thumbnailWidth / originalImage.getWidth() * originalImage.getHeight());
+					BufferedImage thumbnail = new BufferedImage(thumbnailWidth, thumbnailHeight, BufferedImage.TYPE_INT_RGB);
+					thumbnail.getGraphics().drawImage(originalImage, 0, 0, thumbnailWidth, thumbnailHeight, null);
+
+					// Save the thumbnail
+					ImageIO.write(thumbnail, "jpeg", thumbnailFilePath.toFile());
+
+					return thumbnailFilePath;
+				})
+				.then();
+	}
+
 
 	private Mono<ServerResponse> receivedAndReturnArray(ServerRequest request) {
 		return request

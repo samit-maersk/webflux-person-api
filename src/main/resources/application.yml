@@ -1,7 +1,7 @@
 logging:
   level:
-    web: trace
-    com.fasterxml.jackson: trace
+    web: INFO
+    com.fasterxml.jackson: INFO
 
 
 spring:

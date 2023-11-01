@@ -40,7 +40,7 @@ Take a look on this implementation in the code
 ]
 ```
 
-## file Upload / Download
+## file Upload (resize Image for thumbnail) / Download / View
 
 `/file/upload` endpoint describe this scenario for your reference.
 along with that there are example for `/file/view/{fileName}` and `/file/download/{fileName}` as well.
