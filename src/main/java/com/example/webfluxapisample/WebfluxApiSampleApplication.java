@@ -10,9 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
-import org.springframework.web.reactive.function.server.RequestPredicates;
+import org.springframework.http.codec.multipart.FormFieldPart;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -22,20 +21,17 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBuffer;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import static org.springframework.http.MediaType.*;
 import static org.springframework.web.reactive.function.server.RequestPredicates.contentType;
 
 @SpringBootApplication
@@ -59,10 +55,42 @@ public class WebfluxApiSampleApplication {
 				.path("/array", builder -> builder
 						.POST("", this::receivedAndReturnArray))
 				.path("/file", builder -> builder
-						.POST("/upload", contentType(MediaType.MULTIPART_FORM_DATA),this::fileUpload)
+						.POST("/upload", contentType(MULTIPART_FORM_DATA),this::fileUpload)
 						.GET("/view/{fileName}", this::viewFile)
 						.GET("/download/{fileName}", this::downloadFile))
+				.POST("/form-data",contentType(MULTIPART_FORM_DATA), this::formData)
+				.POST("/x-www-form-urlencoded", contentType(APPLICATION_FORM_URLENCODED), this::formDataUrlEncoded)
 				.build();
+
+	}
+
+	private Mono<ServerResponse> formDataUrlEncoded(ServerRequest request) {
+		// x-www-form-urlencoded
+		return request.formData().flatMap(formData -> {
+			return ServerResponse.ok().bodyValue(formData.toSingleValueMap());
+		});
+	}
+
+	private Mono<ServerResponse> formData(ServerRequest request) {
+		// multipart/form-data
+		return request
+				.multipartData()
+				.flatMap(part -> {
+					var stringPartMap = part.toSingleValueMap();
+					var filePart = (FilePart) stringPartMap.get("files");
+					var id = (FormFieldPart) stringPartMap.get("id");
+					var fileName = filePart.filename();
+
+					var map = Map.of(
+								"id" , id.value() ,
+								"fileName", fileName
+							);
+
+					return Mono.fromRunnable(() -> System.out.println(map));
+//					return Mono.just(map);
+				})
+				.then(ServerResponse.ok().bodyValue("File Uploaded Successfully"));
+				//.flatMap(map -> ServerResponse.ok().bodyValue(map));
 
 	}
 
@@ -85,7 +113,7 @@ public class WebfluxApiSampleApplication {
 
 		return ServerResponse
 				.ok()
-				.contentType(MediaType.APPLICATION_OCTET_STREAM)
+				.contentType(APPLICATION_OCTET_STREAM)
 				.header("Content-Disposition", "attachment; filename=\"" + fileName + "\"")
 				.body(stringFlux, byte[].class);
 	}
@@ -110,7 +138,7 @@ public class WebfluxApiSampleApplication {
 
 		return ServerResponse
 				.ok()
-				.contentType(MediaType.IMAGE_JPEG)
+				.contentType(IMAGE_JPEG)
 				.body(stringFlux, byte[].class);
 	}
 
