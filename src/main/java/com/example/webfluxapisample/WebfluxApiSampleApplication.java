@@ -19,6 +19,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+import reactor.util.function.Tuple2;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -29,6 +30,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.springframework.http.MediaType.*;
@@ -72,6 +74,34 @@ public class WebfluxApiSampleApplication {
 	}
 
 	private Mono<ServerResponse> formData(ServerRequest request) {
+	/*
+		// multipart/form-data
+		// Bulk upload
+		return request.multipartData().map(it -> it.get("files"))
+				.flatMapMany(Flux::fromIterable)
+				.cast(FilePart.class)
+				.flatMap(it -> {
+					var fileName = it.filename();
+					System.out.println("fileName = " + fileName);
+					var path = Paths.get("/tmp/" + fileName);
+					return it.transferTo(path);
+				})
+				.then(ServerResponse.ok().bodyValue("File Uploaded Successfully"));
+
+	 */
+
+
+		/*// you can get multiple file out of it
+		return Mono
+				.zip(
+						request.multipartData().map(it -> it.get("files")).filter(Objects::nonNull).flatMapMany(Flux::fromIterable).cast(FilePart.class).collectList().map(Optional::of).defaultIfEmpty(Optional.empty()),
+						request.multipartData().map(it -> it.get("id")).flatMapMany(Flux::fromIterable).cast(FormFieldPart.class).collectList().map(Optional::of).defaultIfEmpty(Optional.empty()),
+						(t1,t2) -> {
+							return t1.get().stream().map(f -> "" + f.filename() + " - " + t2.get().get(0).value());
+						}
+				)
+				.flatMap(it -> ServerResponse.ok().bodyValue(it));*/
+
 		// multipart/form-data
 		return request
 				.multipartData()
@@ -86,12 +116,12 @@ public class WebfluxApiSampleApplication {
 								"fileName", fileName
 							);
 
-					return Mono.fromRunnable(() -> System.out.println(map));
-//					return Mono.just(map);
-				})
-				.then(ServerResponse.ok().bodyValue("File Uploaded Successfully"));
-				//.flatMap(map -> ServerResponse.ok().bodyValue(map));
 
+					return Mono.fromRunnable(() -> System.out.println(map));
+					// return Mono.just(map);
+				})
+				//.then(ServerResponse.ok().bodyValue("File Uploaded Successfully"));
+				.flatMap(map -> ServerResponse.ok().bodyValue(map));
 	}
 
 	private Mono<ServerResponse> downloadFile(ServerRequest request) {
